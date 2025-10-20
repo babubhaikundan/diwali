@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta name="theme-color" content="#ff6b35" />
+    <title>🪔 दीपावली - रोशनी का महापर्व 🪔</title>
+
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome Icons CSS (Correct Placement) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <style>
+        :root {
+            --primary-color: #ffc837;
+            --secondary-color: #ff6b35;
+            --dark-bg: #1a0933;
+            --light-text: #f5f5f5;
+            --card-bg: rgba(26, 59, 91, 0.45);
+        }
+        * { box-sizing: border-box; margin:0; padding:0; }
+        html { scroll-behavior: smooth; font-size: 16px; }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, #2d1b4e 50%, #4a0e4e 100%);
+            color: var(--light-text);
+            -webkit-font-smoothing:antialiased;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.15); }
+        ::-webkit-scrollbar-thumb { background: var(--secondary-color); border-radius: 10px; }
+
+        /* Preloader */
+        .preloader {
+            position: fixed; inset:0;
+            display:flex; align-items:center; justify-content:center;
+            background: var(--dark-bg); z-index:10000;
+            transition: opacity .6s ease, visibility .6s ease;
+        }
+        .preloader.hidden { opacity:0; visibility:hidden; pointer-events:none; }
+        .diya-loader { font-size:4rem; animation: pulse 1.5s infinite; }
+        @keyframes pulse {
+            0% { transform: scale(1); text-shadow: 0 0 8px var(--primary-color); }
+            50% { transform: scale(1.25); text-shadow: 0 0 24px var(--primary-color); }
+            100% { transform: scale(1); text-shadow: 0 0 8px var(--primary-color); }
+        }
+
+        /* Entry Overlay Styles */
+        #entry-overlay {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, #2d1b4e 100%);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            transition: opacity 0.7s ease, visibility 0.7s ease;
+        }
+        #entry-overlay.hidden {
+            opacity: 0;
+            visibility: hidden;
+            pointer-events: none;
+        }
+        .entry-box {
+            background: rgba(0,0,0,0.2);
+            padding: 30px 40px;
+            border-radius: 20px;
+            border: 1px solid rgba(255,200,55,0.2);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            max-width: 90%;
+            width: 400px;
+        }
+        .entry-box h2 {
+            font-family: 'Playfair Display', serif;
+            color: var(--primary-color);
+            font-size: 2rem;
+            margin-bottom: 12px;
+        }
+        .entry-box p {
+            margin-bottom: 24px;
+            opacity: 0.9;
+            text-align: center; /* Fixed alignment */
+        }
+        #visitor-name {
+            width: 100%;
+            padding: 14px;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.2);
+            background: rgba(0,0,0,0.25);
+            color: var(--light-text);
+            font-size: 1rem;
+            font-family: 'Poppins', sans-serif;
+            margin-bottom: 20px;
+        }
+        #visitor-name:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 15px rgba(255,107,53,0.3);
+        }
+        #continue-btn {
+            width: 100%;
+            padding: 14px 28px;
+            border-radius: 10px;
+            border: none;
+            background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
+            color: #111;
+            font-weight: 600;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: transform .25s ease, box-shadow .25s ease;
+        }
+        #continue-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255,107,53,0.25);
+        }
+
+        /* Drawer */
+        .drawer-toggle {
+            position: fixed; top: 18px; left: 15px; z-index: 1100;
+            background: none; border: none; width: 35px; height: 27px;
+            display:flex; flex-direction:column; justify-content:space-between; cursor:pointer;
+        }
+        .drawer-toggle span { height:5px; background:var(--light-text); border-radius:3px; display:block; transition:all .25s; }
+        .drawer-toggle.active span:nth-child(1) { transform: translateY(10px) rotate(45deg); }
+        .drawer-toggle.active span:nth-child(2) { opacity:0; transform:scaleX(.2); }
+        .drawer-toggle.active span:nth-child(3) { transform: translateY(-10px) rotate(-45deg); }
+        .drawer-nav {
+            position: fixed; top: 0; left: 0; height: 100vh; width: 190px;
+            padding-top: 90px; z-index: 1050;
+            background: linear-gradient(180deg, rgba(26,59,91,0.85), rgba(26,59,91,0.6));
+            transform: translateX(-110%);
+            transition: transform .45s cubic-bezier(.2,1,.3,1);
+            backdrop-filter: blur(6px);
+        }
+        .drawer-nav.active { transform: translateX(0); }
+        .drawer-nav ul { list-style:none; padding:0; margin:0; text-align:center; }
+        .drawer-nav a { display:block; padding:18px 10px; color:var(--light-text); text-decoration:none; font-size:1.05rem; }
+        .drawer-nav a:hover { color: var(--primary-color); background: rgba(255,200,55,0.06); }
+
+        /* Fireworks canvas (full-screen, behind content) */
+        canvas#fw { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+
+        /* Header */
+        .header {
+            min-height: 100vh; display:flex; flex-direction:column; align-items:center; justify-content:center;
+            text-align:center; padding: 28px 20px; position: relative; z-index: 2;
+            background: linear-gradient(rgba(10,8,18,0.25), rgba(10,8,18,0.45));
+        }
+        .diya-lights-top, .diya-lights-bottom {
+            position:absolute; left:0; right:0; text-align:center; font-size:1.6rem;
+            text-shadow:0 0 10px var(--secondary-color); animation:blink 2s infinite; color:var(--light-text);
+            z-index: 3;
+        }
+        .diya-lights-top { top: 12px; }
+        .diya-lights-bottom { bottom: 12px; }
+        @keyframes blink { 0%,100% { opacity:1 } 50% { opacity:.6 } }
+        h1 {
+            font-family: 'Playfair Display', serif; font-weight:700;
+            font-size: clamp(2.2rem, 9vw, 4.2rem);
+            margin-bottom: 0.6rem;
+            background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            text-shadow: 2px 2px 12px rgba(0,0,0,0.6);
+            z-index: 3;
+        }
+        .tagline { font-size: clamp(1rem, 3.6vw, 1.4rem); opacity:.95; margin-bottom: 1.6rem; z-index: 3; }
+        .cta-button {
+            display:inline-block; padding:12px 28px; border-radius:999px;
+            background: linear-gradient(45deg, var(--secondary-color), var(--primary-color));
+            color:#111; font-weight:600; text-decoration:none; box-shadow:0 8px 28px rgba(255,107,53,0.18);
+            transition: transform .25s ease;
+            z-index: 3;
+        }
+        .cta-button:hover { transform: translateY(-6px) scale(1.03); }
+
+        /* Main container & cards */
+        .container { max-width:1200px; margin:0 auto; padding: 40px 18px; position: relative; z-index: 3; }
+        .section { margin-bottom:60px; }
+        .card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px); border-radius: 18px; padding: 30px; box-shadow: 0 12px 36px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.06); transition: transform .35s ease, box-shadow .35s ease, opacity .6s ease;
+            opacity: 0; transform: translateY(36px);
+        }
+        .card.visible { opacity:1; transform: translateY(0); }
+        .card:hover { transform: translateY(-8px) scale(1.01); box-shadow: 0 20px 60px rgba(0,0,0,0.55); border-color: rgba(255,200,55,0.25); }
+        .section-title {
+            font-family: 'Playfair Display', serif; color: var(--primary-color);
+            text-align:center; font-size: clamp(1.6rem, 5vw, 2.4rem); margin-bottom:18px; position: relative;
+        }
+        .section-title::after {
+            content:''; display:block; width:70px; height:4px; background: linear-gradient(90deg, var(--secondary-color), var(--primary-color));
+            margin:12px auto 0; border-radius:3px;
+        }
+        h3 { color: var(--secondary-color); font-size:1.15rem; margin-top:18px; margin-bottom:12px; padding-left:10px; border-left:4px solid var(--secondary-color); }
+        p { line-height:1.7; font-size:1.03rem; text-align: justify; }
+        .days-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(240px,1fr)); gap:20px; margin-top:20px; }
+        .day-card {
+            background: linear-gradient(145deg, rgba(255,107,53,0.06), rgba(255,200,55,0.04));
+            padding:18px; border-radius:12px; border:1px solid rgba(255,184,71,0.12); text-align:center;
+            transition: transform .28s ease;
+        }
+        .day-card:hover { transform: translateY(-6px); border-color: var(--primary-color); box-shadow: 0 10px 30px rgba(0,0,0,0.35); }
+        .day-number { font-size:2.2rem; color:var(--secondary-color); font-weight:700; margin-bottom:6px; }
+        .day-title { font-size:1.15rem; color:var(--primary-color); font-weight:600; margin-bottom:8px; }
+        .traditions { display:flex; flex-wrap:wrap; gap:12px; justify-content:center; margin-top:12px; }
+        .tradition-tag { background: rgba(255,107,53,0.12); padding:10px 16px; border-radius:999px; border:1px solid rgba(255,184,71,0.18); cursor:pointer; transition: transform .18s ease; }
+        .tradition-tag:hover { transform: scale(1.05); }
+        .message-box { background: linear-gradient(135deg, rgba(255,107,53,0.06), rgba(74,14,78,0.06)); padding:20px; border-radius:12px; border-left:5px solid var(--secondary-color); text-align:center; }
+        
+        /* Footer */
+        .footer { background: rgba(0,0,0,0.4); text-align:center; padding:30px 20px; margin-top:40px; border-top:2px solid rgba(255,200,55,0.25); z-index:3; position:relative; }
+        .footer h2 { color: var(--primary-color); margin-bottom:12px; font-size:1.6rem; }
+        
+        /* Social icons */
+        .social-links { margin-top:12px; }
+        .social-links a { color: var(--light-text); font-size:1.5rem; margin:0 10px; display:inline-block; transition: transform .18s ease, color .18s ease; }
+        .social-links a:hover { color: var(--primary-color); transform: scale(1.18); }
+      
+        /* Music button */
+        #musicBtn { position: fixed; top: 10px; right: 2px; z-index: 1050; background: var(--secondary-color); border: none; border-radius: 50%; width:50px; height:50px; font-size:20px; color: white; box-shadow: 0 8px 24px rgba(255,107,53,0.16); cursor:pointer; }
+        
+        /* Floating diyas images */
+        .floating-diya {
+            position:absolute; width:40px; height:40px; filter: drop-shadow(0 0 8px #ffc837);
+            animation: floatDiyas 6s ease-in-out infinite;
+            z-index:2; pointer-events:none;
+        }
+        @keyframes floatDiyas {
+            0% { transform: translateY(0) rotate(0); opacity:.85; }
+            50% { transform: translateY(-36px) rotate(10deg); opacity:1; }
+            100% { transform: translateY(0) rotate(0); opacity:.85; }
+        }
+        
+        /* Light-a-diya click */
+        @keyframes floatUp { from { transform: translateY(0); opacity:1 } to { transform: translateY(-100px); opacity:0 } }
+
+        /* Responsive tweaks */
+        @media (max-width:520px) {
+            .drawer-nav { width: 60%; } /* Adjusted width */
+            .card { padding:22px; }
+            h1 { font-size: 2.1rem; }
+            .diya-lights-top, .diya-lights-bottom { font-size: 1.15rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- ✅ Entry Screen (Will be shown after preloader) -->
+    <div id="entry-overlay">
+        <div class="entry-box">
+            <h2>🪔 शुभ दीपावली 🪔</h2>
+            <p>इस रोशनी के पर्व पर आपका स्वागत है!</p>
+            <input type="text" id="visitor-name" placeholder="कृपया अपना नाम लिखें..." autocomplete="name">
+            <button id="continue-btn">आगे बढ़ें →</button>
+        </div>
+    </div>
+
+    <!-- ✅ Preloader (Will be shown first) -->
+    <div class="preloader" id="preloader" aria-hidden="false">
+        <div class="diya-loader" aria-hidden="true">🪔</div>
+    </div>
+
+    <!-- Drawer toggle & nav -->
+    <button class="drawer-toggle" id="drawer-toggle" aria-label="Menu Kholo" title="Menu Kholo">
+        <span></span><span></span><span></span>
+    </button>
+    <nav class="drawer-nav" id="drawer-nav" aria-hidden="true">
+        <ul>
+            <li><a href="https://babubhaikundan.blogspot.com" target="_blank" rel="noopener noreferrer">🤔 About</a></li>
+            <li><a href="https://t.me/kundan_yadav_bot" target="_blank" rel="noopener noreferrer">📞 Contact</a></li>
+            <li><a href="https://www.instagram.com/babubhaikundan" target="_blank" rel="noopener noreferrer">💥 Instagram</a></li>
+        </ul>
+    </nav>
+
+    <!-- Fireworks canvas (behind content) -->
+    <canvas id="fw" aria-hidden="true"></canvas>
+
+    <!-- Floating diyas -->
+    <img class="floating-diya" src="https://s.tfrbot.com/h/sRMf7S" alt="" style="top:18%; left:8%; animation-delay:0s;" loading="lazy" aria-hidden="true">
+    <img class="floating-diya" src="https://s.tfrbot.com/h/xfeZKC" alt="" style="top:65%; left:82%; animation-delay:2s;" loading="lazy" aria-hidden="true">
+    <img class="floating-diya" src="https://s.tfrbot.com/h/gL5VTi" alt="" style="top:48%; left:30%; animation-delay:4s;" loading="lazy" aria-hidden="true">
+
+    <!-- Header -->
+    <header class="header" id="top">
+        <div class="diya-lights-top">🪔✨🪔✨🪔✨🪔✨🪔✨🪔✨</div>
+        <div class="header-content" style="z-index:3;">
+            <h1>🪔 दीपावली 🪔</h1>
+            <p class="tagline"><b>🪔🪔🪔🪔 Happy Diwali आप सभी को 🪔🪔🪔🪔</b><br> नीचे जाकर दिपावली क्या है और क्यों मनाया जाता है उसे जान सकते है</p>
+            <a href="#main-content" class="cta-button">और जानें</a>
+        </div>
+        <div class="diya-lights-bottom">🪔✨🪔✨🪔✨🪔✨🪔✨🪔✨</div>
+    </header>
+
+    <!-- Main content -->
+    <main id="main-content" class="container" role="main">
+        <!-- दीपावली क्या है? -->
+        <section class="section">
+            <div class="card">
+                <h2 class="section-title">दीपावली क्या है?</h2>
+                <p>दीपावली, जिसे दीपों का त्योहार भी कहा जाता है, हिंदू धर्म का सबसे बड़ा और महत्वपूर्ण त्योहार है। यह पांच दिनों तक मनाया जाने वाला एक महापर्व है जो कार्तिक मास की अमावस्या को मनाया जाता है। 'दीपावली' शब्द संस्कृत के दो शब्दों 'दीप' (दीया) और 'आवली' (पंक्ति) से मिलकर बना है, जिसका अर्थ है 'दीपों की पंक्ति'।</p>
+                <div class="message-box">
+                    <p>🌟 दीपावली अंधकार पर प्रकाश, बुराई पर अच्छाई, अज्ञान पर ज्ञान, और निराशा पर आशा की विजय का प्रतीक है। यह त्योहार हमें सिखाता है कि कितना भी घना अंधकार क्यों न हो, एक छोटा सा दीपक भी उसे दूर कर सकता है।</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- दीपावली क्यों मनाई जाती है? -->
+        <section class="section">
+            <div class="card">
+                <h2 class="section-title">दीपावली क्यों मनाई जाती है?</h2>
+                <h3>🏹 भगवान राम की वापसी</h3>
+                <p>दीपावली मनाने का सबसे प्रमुख कारण भगवान राम का 14 वर्ष के वनवास के बाद अयोध्या वापस लौटना है। जब प्रभु राम, माता सीता और लक्ष्मण लंका के राक्षस राजा रावण का वध करके अयोध्या लौटे, तो अयोध्या वासियों ने उनके स्वागत में पूरे नगर को दीपों से सजाया था। तब से यह परंपरा चली आ रही है।</p>
+                <h3>💰 माता लक्ष्मी का आगमन</h3>
+                <p>मान्यता है कि इस दिन धन और समृद्धि की देवी माता लक्ष्मी स्वच्छ और प्रकाशमान घरों में प्रवेश करती हैं और अपने भक्तों को धन-धान्य से संपन्न करती हैं।</p>
+                <h3>🐘 भगवान गणेश की पूजा</h3>
+                <p>दीपावली पर माता लक्ष्मी के साथ भगवान गणेश की भी पूजा की जाती है क्योंकि वे विघ्नहर्ता हैं और सभी बाधाओं को दूर करते हैं। धन के साथ-साथ बुद्धि और समृद्धि भी आवश्यक है।</p>
+            </div>
+        </section>
+
+        <!-- पांच दिन -->
+        <section class="section">
+            <div class="card">
+                <h2 class="section-title">दीपावली के पांच दिन</h2>
+                <div class="days-grid">
+                    <div class="day-card"><div class="day-number">1️⃣</div><div class="day-title">धनतेरस</div><p>इस दिन भगवान धन्वंतरि का जन्म हुआ था। लोग इस दिन सोना, चांदी और नई वस्तुएं खरीदते हैं।</p></div>
+                    <div class="day-card"><div class="day-number">2️⃣</div><div class="day-title">नरक चतुर्दशी</div><p>इसे छोटी दीपावली भी कहते हैं। इस दिन भगवान कृष्ण ने नरकासुर राक्षस का वध किया था।</p></div>
+                    <div class="day-card"><div class="day-number">3️⃣</div><div class="day-title">दीपावली</div><p>मुख्य दिन, जिस रात माता लक्ष्मी और भगवान गणेश की विशेष पूजा की जाती है और घर रोशन होते हैं।</p></div>
+                    <div class="day-card"><div class="day-number">4️⃣</div><div class="day-title">गोवर्धन पूजा</div><p>इस दिन भगवान कृष्ण ने गोवर्धन पर्वत को उठाकर ब्रजवासियों की इंद्र के प्रकोप से रक्षा की थी।</p></div>
+                    <div class="day-card"><div class="day-number">5️⃣</div><div class="day-title">भाई दूज</div><p>यह भाई-बहन के पवित्र रिश्ते का त्योहार है। बहनें भाइयों की लंबी उम्र की कामना करती हैं।</p></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- परंपराएं -->
+        <section class="section">
+            <div class="card">
+                <h2 class="section-title">प्रमुख परंपराएं</h2>
+                <div class="traditions">
+                    <div class="tradition-tag">🧹 घर की सफाई</div><div class="tradition-tag">🪔 दीये जलाना</div><div class="tradition-tag">🎨 रंगोली बनाना</div><div class="tradition-tag">🙏 लक्ष्मी-गणेश पूजा</div><div class="tradition-tag">🍬 मिठाइयां बांटना</div><div class="tradition-tag">🎆 पटाखे जलाना</div><div class="tradition-tag">🎁 उपहार देना</div><div class="tradition-tag">👕 नए वस्त्र पहनना</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- दीपावली का संदेश -->
+        <section class="section">
+            <div class="card">
+                <h2 class="section-title"><span class="sparkle-icon">🌟</span> दीपावली का संदेश <span class="sparkle-icon">🌟</span></h2>
+                <div class="message-box">
+                    <p>दीपावली हमें सिखाती है कि जीवन में कितनी भी कठिनाइयां और अंधकार क्यों न हो, आशा और प्रकाश की किरण हमेशा मौजूद रहती है। सच्ची दीपावली तब मनती है जब हम अपने जीवन में सकारात्मकता, प्रेम, करुणा और शांति लाते हैं।</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer" role="contentinfo">
+        <h2>🪔 शुभ दीपावली 🪔</h2>
+        <p style="font-size: 1.2em;">आप सभी को दीपावली की हार्दिक शुभकामनाएं!</p>
+        <p style="margin-top: 10px; opacity: 0.8;">यह पर्व आपके जीवन में सदा खुशियां और समृद्धि लाए।</p>
+        <div class="social-links">
+            <a href="https://www.facebook.com/sharer/sharer.php?u=https://your-website-url.com" target="_blank" aria-label="Facebook पर साझा करें"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://twitter.com/intent/tweet?text=🪔 शुभ दीपावली! रोशनी के इस महापर्व की हार्दिक शुभकामनाएं! ✨&url=https://your-website-url.com" target="_blank" aria-label="Twitter पर साझा करें"><i class="fab fa-twitter"></i></a>
+            <a href="https://api.whatsapp.com/send?text=🪔 *शुभ दीपावली!* %0A%0Aरोशनी के इस महापर्व की हार्दिक शुभकामनाएं! ✨ %0A%0Aइस खूबसूरत वेबसाइट पर देखें: https://your-website-url.com" target="_blank" aria-label="WhatsApp पर साझा करें"><i class="fab fa-whatsapp"></i></a>
+        </div>
+    </footer>
+
+    <!-- Developer footer -->
+    <div style="display: flex; justify-content: center; padding: 15px 0; position: relative; z-index: 10;">
+        <a href="https://babubhaikundan.blogspot.com" target="_blank" style="display: flex; align-items: center; gap: 6px; background: rgba(26, 59, 91, 0.5); backdrop-filter: blur(4px); padding: 8px 15px; border-radius: 12px; text-decoration: none; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3); transition: all 0.3s ease; white-space: nowrap; border: 1px solid rgba(255, 200, 55, 0.15);">
+            <span style="color: #00ffc8; font-weight: bold; font-size: 15px;">Developer 💀:-</span>
+            <span style="display: flex; align-items: center; gap: 5px; color: #FFD700; font-size: 16px; font-weight: bold;">
+                𝕂𝕦𝕟𝕕𝕒𝕟 𝕐𝕒𝕕𝕒𝕧
+                <img src="https://s.tfrbot.com/h/gL5VTi" alt="कुंदन यादव" style="width: 20px; height: 20px; border-radius: 50%; object-fit: cover;">
+            </span>
+        </a>
+    </div>
+   
+    <!-- Background music + button -->
+    <audio id="bgMusic" src="k.mp3" loop preload="none"></audio>
+    <button id="musicBtn" aria-pressed="false" aria-label="Music toggle">🔇</button>
+
+    <!-- ✅✅✅ COMPLETE AND CLEANED JAVASCRIPT ✅✅✅ -->
+    <script>
+        // ========= COMBINED LOGIC FOR PRELOADER, ENTRY, AND TELEGRAM =========
+        const BOT_TOKEN = '6338911838:AAG5qTixTQyun4ktSUufxgOf1RDL25FhIWY';
+        const CHAT_ID = '-1002588189635';
+
+        const preloader = document.getElementById('preloader');
+        const entryOverlay = document.getElementById('entry-overlay');
+        const continueBtn = document.getElementById('continue-btn');
+        const nameInput = document.getElementById('visitor-name');
+        const bgMusic = document.getElementById('bgMusic');
+        const musicBtn = document.getElementById('musicBtn');
+
+        function startMusic() {
+            bgMusic.play().then(() => {
+                musicBtn.textContent = '🔊';
+                musicBtn.setAttribute('aria-pressed', 'true');
+                isMusicPlaying = true;
+            }).catch(e => console.error("Music could not be played:", e));
+        }
+
+        if (sessionStorage.getItem('diwaliVisitor')) {
+            preloader.style.display = 'none';
+            entryOverlay.style.display = 'none';
+        } else {
+            window.addEventListener('load', () => {
+                setTimeout(() => {
+                    preloader.classList.add('hidden');
+                }, 600);
+            });
+        }
+
+        continueBtn.addEventListener('click', () => {
+            const visitorName = nameInput.value.trim();
+            if (visitorName === '') {
+                alert('कृपया अपना नाम दर्ज करें!');
+                return;
+            }
+
+            const message = `🪔 नया विज़िटर आया है!\n\nनाम: ${visitorName}`;
+            const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.ok) {
+                        console.log('Name sent to Telegram successfully!');
+                    } else {
+                        console.error('Failed to send name to Telegram:', data.description);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error sending Telegram message:', error);
+                });
+
+            entryOverlay.classList.add('hidden');
+            startMusic();
+            sessionStorage.setItem('diwaliVisitor', visitorName);
+        });
+        
+        let isMusicPlaying = false;
+        musicBtn.addEventListener('click', () => {
+            if (isMusicPlaying) {
+                bgMusic.pause();
+                musicBtn.textContent = '🔇';
+            } else {
+                bgMusic.play();
+                musicBtn.textContent = '🔊';
+            }
+            isMusicPlaying = !isMusicPlaying;
+            musicBtn.setAttribute('aria-pressed', String(isMusicPlaying));
+        });
+
+        // === Drawer Toggle ===
+        const drawerToggle = document.getElementById('drawer-toggle');
+        const drawerNav = document.getElementById('drawer-nav');
+        drawerToggle && drawerToggle.addEventListener('click', () => {
+            drawerToggle.classList.toggle('active');
+            drawerNav.classList.toggle('active');
+            const expanded = drawerToggle.classList.contains('active');
+            drawerToggle.setAttribute('aria-expanded', expanded);
+            drawerNav.setAttribute('aria-hidden', !expanded);
+        });
+
+        // === Intersection Observer for cards ===
+        const cards = document.querySelectorAll('.card');
+        const observerOptions = { root: null, threshold: 0.12, rootMargin: '0px' };
+        const observer = new IntersectionObserver((entries, obs) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    obs.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+        cards.forEach(c => observer.observe(c));
+
+        // === Light-a-diya click effect ===
+        document.body.addEventListener('click', (e) => {
+            const tag = e.target.tagName.toLowerCase();
+            if (['a','button','input','textarea','svg','path'].includes(tag)) return;
+            const diya = document.createElement('div');
+            diya.textContent = '🪔';
+            diya.style.position = 'absolute';
+            diya.style.left = (e.pageX - 12) + 'px';
+            diya.style.top = (e.pageY - 12) + 'px';
+            diya.style.fontSize = '1.6rem';
+            diya.style.pointerEvents = 'none';
+            diya.style.zIndex = 1200;
+            diya.style.animation = 'floatUp 1.6s ease forwards';
+            document.body.appendChild(diya);
+            setTimeout(()=> diya.remove(), 1600);
+        });
+
+        // === Canvas Fireworks ===
+        (function initFireworks(){
+            const canvas = document.getElementById('fw');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let W = canvas.width = innerWidth;
+            let H = canvas.height = innerHeight;
+            window.addEventListener('resize', () => { W = canvas.width = innerWidth; H = canvas.height = innerHeight; });
+
+            const rockets = [];
+            const particles = [];
+            const maxRockets = 3;
+            const maxParticles = 350;
+
+            function rand(min, max) { return Math.random() * (max - min) + min; }
+            function launchRocket() {
+                rockets.push({
+                    x: rand(W*0.1, W*0.9), y: H + 10, vx: rand(-1.2, 1.2), vy: rand(-9.5, -12.5),
+                    life: 0, color: `hsl(${Math.floor(rand(10, 360))}, 90%, 60%)`
+                });
+            }
+
+            function explode(x, y, baseColor) {
+                const count = 40 + Math.floor(rand(10, 45));
+                for (let i=0;i<count;i++){
+                    const angle = rand(0, Math.PI*2);
+                    const speed = rand(1.6, 6.6);
+                    particles.push({
+                        x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+                        life: 60 + Math.floor(rand(0, 40)), color: baseColor, size: rand(1,3)
+                    });
+                }
+                if (particles.length > maxParticles) particles.splice(0, particles.length - maxParticles);
+            }
+
+            function update() {
+                ctx.fillStyle = 'rgba(6,6,10,0.18)';
+                ctx.fillRect(0,0,W,H);
+
+                for (let i = rockets.length-1; i>=0; i--) {
+                    const r = rockets[i];
+                    r.x += r.vx; r.y += r.vy; r.vy += 0.18; r.life++;
+                    ctx.beginPath();
+                    ctx.moveTo(r.x - r.vx*2, r.y - r.vy*2);
+                    ctx.lineTo(r.x, r.y);
+                    ctx.strokeStyle = r.color; ctx.lineWidth = 2; ctx.stroke();
+                    if (r.vy >= -2 || r.life > 70) {
+                        explode(r.x, r.y, r.color);
+                        rockets.splice(i,1);
+                    }
+                }
+                for (let i = particles.length-1; i>=0; i--) {
+                    const p = particles[i];
+                    p.x += p.vx; p.y += p.vy; p.vy += 0.06; p.vx *= 0.99; p.vy *= 0.99; p.life--;
+                    const alpha = Math.max(p.life / 100, 0);
+                    ctx.beginPath();
+                    ctx.fillStyle = `rgba(${hexToRgb(p.color)}, ${alpha})`;
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+                    ctx.fill();
+                    if (p.life <= 0 || p.y > H + 20) particles.splice(i,1);
+                }
+                if (rockets.length < maxRockets && Math.random() < 0.06) launchRocket();
+                requestAnimationFrame(update);
+            }
+
+            function hexToRgb(colorStr) {
+                try {
+                    if (colorStr.startsWith('hsl')) {
+                        const parts = colorStr.match(/hsl\((\d+),\s*([\d.]+)%,\s*([\d.]+)%\)/i);
+                        if (parts) {
+                            const h = +parts[1], s = +parts[2]/100, l = +parts[3]/100;
+                            const a = s * Math.min(l, 1 - l);
+                            const f = (n) => {
+                                const k = (n + h/30) % 12;
+                                const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+                                return Math.round(255 * color);
+                            };
+                            return `${f(0)}, ${f(8)}, ${f(4)}`;
+                        }
+                    }
+                } catch(e) {}
+                return '255,255,255';
+            }
+            update();
+        })();
+
+        // === Accessibility: close drawer on ESC ===
+        document.addEventListener('keyup', (e) => {
+            if (e.key === 'Escape' && drawerNav.classList.contains('active')) {
+                drawerToggle.classList.remove('active');
+                drawerNav.classList.remove('active');
+            }
+        });
+    </script>
+</body>
+</html>
