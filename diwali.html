@@ -387,212 +387,263 @@
     <button id="musicBtn" aria-pressed="false" aria-label="Music toggle">🔇</button>
 
     <!-- ✅✅✅ COMPLETE AND CLEANED JAVASCRIPT ✅✅✅ -->
-    <script>
-        // ========= COMBINED LOGIC FOR PRELOADER, ENTRY, AND TELEGRAM =========
-        const BOT_TOKEN = '6338911838:AAG5qTixTQyun4ktSUufxgOf1RDL25FhIWY';
-        const CHAT_ID = '-1002588189635';
 
-        const preloader = document.getElementById('preloader');
-        const entryOverlay = document.getElementById('entry-overlay');
-        const continueBtn = document.getElementById('continue-btn');
-        const nameInput = document.getElementById('visitor-name');
-        const bgMusic = document.getElementById('bgMusic');
-        const musicBtn = document.getElementById('musicBtn');
-
-        function startMusic() {
-            bgMusic.play().then(() => {
-                musicBtn.textContent = '🔊';
-                musicBtn.setAttribute('aria-pressed', 'true');
-                isMusicPlaying = true;
-            }).catch(e => console.error("Music could not be played:", e));
-        }
-
-        if (sessionStorage.getItem('diwaliVisitor')) {
-            preloader.style.display = 'none';
-            entryOverlay.style.display = 'none';
-        } else {
-            window.addEventListener('load', () => {
-                setTimeout(() => {
-                    preloader.classList.add('hidden');
-                }, 600);
-            });
-        }
-
-        continueBtn.addEventListener('click', () => {
-            const visitorName = nameInput.value.trim();
-            if (visitorName === '') {
-                alert('कृपया अपना नाम दर्ज करें!');
-                return;
-            }
-
-            const message = `🪔 नया विज़िटर आया है!\n\nनाम: ${visitorName}`;
-            const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}`;
-
-            fetch(url)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.ok) {
-                        console.log('Name sent to Telegram successfully!');
-                    } else {
-                        console.error('Failed to send name to Telegram:', data.description);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error sending Telegram message:', error);
-                });
-
-            entryOverlay.classList.add('hidden');
-            startMusic();
-            sessionStorage.setItem('diwaliVisitor', visitorName);
-        });
         
-        let isMusicPlaying = false;
-        musicBtn.addEventListener('click', () => {
-            if (isMusicPlaying) {
-                bgMusic.pause();
-                musicBtn.textContent = '🔇';
-            } else {
-                bgMusic.play();
-                musicBtn.textContent = '🔊';
-            }
-            isMusicPlaying = !isMusicPlaying;
-            musicBtn.setAttribute('aria-pressed', String(isMusicPlaying));
-        });
+            
+<script>
+    // ✅✅✅ COMPLETE AND IMPROVED JAVASCRIPT WITH DEVICE DETAILS ✅✅✅
 
-        // === Drawer Toggle ===
-        const drawerToggle = document.getElementById('drawer-toggle');
-        const drawerNav = document.getElementById('drawer-nav');
-        drawerToggle && drawerToggle.addEventListener('click', () => {
-            drawerToggle.classList.toggle('active');
-            drawerNav.classList.toggle('active');
-            const expanded = drawerToggle.classList.contains('active');
-            drawerToggle.setAttribute('aria-expanded', expanded);
-            drawerNav.setAttribute('aria-hidden', !expanded);
-        });
+    // ========= COMBINED LOGIC FOR PRELOADER, ENTRY, AND TELEGRAM =========
+    const BOT_TOKEN = '8338911838:AAG5qTixTQyun4ktSUufxgOf1RDL25FhIWY'; // Your correct token
+    const CHAT_ID = '-1002588189635';
 
-        // === Intersection Observer for cards ===
-        const cards = document.querySelectorAll('.card');
-        const observerOptions = { root: null, threshold: 0.12, rootMargin: '0px' };
-        const observer = new IntersectionObserver((entries, obs) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                    obs.unobserve(entry.target);
+    // Get all required elements from the page
+    const preloader = document.getElementById('preloader');
+    const entryOverlay = document.getElementById('entry-overlay');
+    const continueBtn = document.getElementById('continue-btn');
+    const nameInput = document.getElementById('visitor-name');
+    const bgMusic = document.getElementById('bgMusic');
+    const musicBtn = document.getElementById('musicBtn');
+
+    // ---- Function to get device details ----
+    function getDeviceDetails() {
+        const ua = navigator.userAgent;
+        let os = "Unknown OS";
+        if (ua.indexOf("Win") != -1) os = "Windows";
+        if (ua.indexOf("Mac") != -1) os = "macOS";
+        if (ua.indexOf("Linux") != -1) os = "Linux";
+        if (ua.indexOf("Android") != -1) os = "Android";
+        if (ua.indexOf("like Mac") != -1) os = "iOS";
+
+        let browser = "Unknown Browser";
+        if (ua.indexOf("Firefox") > -1) browser = "Firefox";
+        if (ua.indexOf("SamsungBrowser") > -1) browser = "Samsung Internet";
+        if (ua.indexOf("Opera") > -1 || ua.indexOf("OPR") > -1) browser = "Opera";
+        if (ua.indexOf("Trident") > -1) browser = "Internet Explorer";
+        if (ua.indexOf("Edge") > -1) browser = "Edge";
+        if (ua.indexOf("Chrome") > -1) browser = "Chrome";
+        if (ua.indexOf("Safari") > -1) browser = "Safari";
+        
+        if ((ua.indexOf("Chrome") > -1) && (ua.indexOf("Safari") > -1) && (ua.indexOf("Edge") == -1)) browser = "Chrome";
+        
+        return `📱 OS: ${os}\n🌐 Browser: ${browser}`;
+    }
+
+    const deviceDetails = getDeviceDetails(); // Get details once
+
+    // ---- LOGIC TO NOTIFY ON NEW VISIT ----
+    if (!sessionStorage.getItem('visitNotified')) {
+        const visitMessage = `🎉 *New Visitor!* 🎉\n\nSomeone opened your Diwali site.\n\n${deviceDetails}`;
+        const visitUrl = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(visitMessage)}&parse_mode=Markdown`;
+        
+        fetch(visitUrl)
+            .then(response => response.json())
+            .then(data => console.log('Visit notification sent.'))
+            .catch(error => console.error('Error sending visit notification:', error));
+
+        sessionStorage.setItem('visitNotified', 'true');
+    }
+
+    // ---- MAIN LOGIC ON PAGE LOAD ----
+    function startMusic() {
+        bgMusic.play().then(() => {
+            musicBtn.textContent = '🔊';
+            musicBtn.setAttribute('aria-pressed', 'true');
+            isMusicPlaying = true;
+        }).catch(e => console.error("Music could not be played:", e));
+    }
+
+    if (sessionStorage.getItem('diwaliVisitor')) {
+        preloader.style.display = 'none';
+        entryOverlay.style.display = 'none';
+    } else {
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                preloader.classList.add('hidden');
+            }, 600);
+        });
+    }
+
+    // ---- EVENT LISTENER FOR THE CONTINUE BUTTON ----
+    continueBtn.addEventListener('click', () => {
+        const visitorName = nameInput.value.trim();
+        if (visitorName === '') {
+            alert('कृपया अपना नाम दर्ज करें!');
+            return;
+        }
+
+        const message = `🪔 *New Name Submitted!* 🪔\n\n👤 *Name:* ${visitorName}\n\n${deviceDetails}`;
+        const url = `https://api.telegram.org/bot${BOT_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${encodeURIComponent(message)}&parse_mode=Markdown`;
+
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                if (data.ok) {
+                    console.log('Name sent to Telegram successfully!');
+                } else {
+                    console.error('Failed to send name to Telegram:', data.description);
                 }
+            })
+            .catch(error => {
+                console.error('Error sending Telegram message:', error);
             });
-        }, observerOptions);
-        cards.forEach(c => observer.observe(c));
 
-        // === Light-a-diya click effect ===
-        document.body.addEventListener('click', (e) => {
-            const tag = e.target.tagName.toLowerCase();
-            if (['a','button','input','textarea','svg','path'].includes(tag)) return;
-            const diya = document.createElement('div');
-            diya.textContent = '🪔';
-            diya.style.position = 'absolute';
-            diya.style.left = (e.pageX - 12) + 'px';
-            diya.style.top = (e.pageY - 12) + 'px';
-            diya.style.fontSize = '1.6rem';
-            diya.style.pointerEvents = 'none';
-            diya.style.zIndex = 1200;
-            diya.style.animation = 'floatUp 1.6s ease forwards';
-            document.body.appendChild(diya);
-            setTimeout(()=> diya.remove(), 1600);
+        entryOverlay.classList.add('hidden');
+        startMusic();
+        sessionStorage.setItem('diwaliVisitor', visitorName);
+    });
+
+    // ---- LOGIC FOR THE MUSIC TOGGLE BUTTON ----
+    let isMusicPlaying = false;
+    musicBtn.addEventListener('click', () => {
+        if (isMusicPlaying) {
+            bgMusic.pause();
+            musicBtn.textContent = '🔇';
+        } else {
+            bgMusic.play();
+            musicBtn.textContent = '🔊';
+        }
+        isMusicPlaying = !isMusicPlaying;
+        musicBtn.setAttribute('aria-pressed', String(isMusicPlaying));
+    });
+
+    // === Drawer Toggle ===
+    const drawerToggle = document.getElementById('drawer-toggle');
+    const drawerNav = document.getElementById('drawer-nav');
+    drawerToggle && drawerToggle.addEventListener('click', () => {
+        drawerToggle.classList.toggle('active');
+        drawerNav.classList.toggle('active');
+        const expanded = drawerToggle.classList.contains('active');
+        drawerToggle.setAttribute('aria-expanded', expanded);
+        drawerNav.setAttribute('aria-hidden', !expanded);
+    });
+
+    // === Intersection Observer for cards ===
+    const cards = document.querySelectorAll('.card');
+    const observerOptions = { root: null, threshold: 0.12, rootMargin: '0px' };
+    const observer = new IntersectionObserver((entries, obs) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                obs.unobserve(entry.target);
+            }
         });
+    }, observerOptions);
+    cards.forEach(c => observer.observe(c));
 
-        // === Canvas Fireworks ===
-        (function initFireworks(){
-            const canvas = document.getElementById('fw');
-            if (!canvas) return;
-            const ctx = canvas.getContext('2d');
-            let W = canvas.width = innerWidth;
-            let H = canvas.height = innerHeight;
-            window.addEventListener('resize', () => { W = canvas.width = innerWidth; H = canvas.height = innerHeight; });
+    // === Light-a-diya click effect ===
+    document.body.addEventListener('click', (e) => {
+        const tag = e.target.tagName.toLowerCase();
+        if (['a','button','input','textarea','svg','path'].includes(tag)) return;
+        const diya = document.createElement('div');
+        diya.textContent = '🪔';
+        diya.style.position = 'absolute';
+        diya.style.left = (e.pageX - 12) + 'px';
+        diya.style.top = (e.pageY - 12) + 'px';
+        diya.style.fontSize = '1.6rem';
+        diya.style.pointerEvents = 'none';
+        diya.style.zIndex = 1200;
+        diya.style.animation = 'floatUp 1.6s ease forwards';
+        document.body.appendChild(diya);
+        setTimeout(()=> diya.remove(), 1600);
+    });
 
-            const rockets = [];
-            const particles = [];
-            const maxRockets = 3;
-            const maxParticles = 350;
+    // === Canvas Fireworks ===
+    (function initFireworks(){
+        const canvas = document.getElementById('fw');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        let W = canvas.width = innerWidth;
+        let H = canvas.height = innerHeight;
+        window.addEventListener('resize', () => { W = canvas.width = innerWidth; H = canvas.height = innerHeight; });
 
-            function rand(min, max) { return Math.random() * (max - min) + min; }
-            function launchRocket() {
-                rockets.push({
-                    x: rand(W*0.1, W*0.9), y: H + 10, vx: rand(-1.2, 1.2), vy: rand(-9.5, -12.5),
-                    life: 0, color: `hsl(${Math.floor(rand(10, 360))}, 90%, 60%)`
+        const rockets = [];
+        const particles = [];
+        const maxRockets = 3;
+        const maxParticles = 350;
+
+        function rand(min, max) { return Math.random() * (max - min) + min; }
+        function launchRocket() {
+            rockets.push({
+                x: rand(W*0.1, W*0.9), y: H + 10, vx: rand(-1.2, 1.2), vy: rand(-9.5, -12.5),
+                life: 0, color: `hsl(${Math.floor(rand(10, 360))}, 90%, 60%)`
+            });
+        }
+
+        function explode(x, y, baseColor) {
+            const count = 40 + Math.floor(rand(10, 45));
+            for (let i=0;i<count;i++){
+                const angle = rand(0, Math.PI*2);
+                const speed = rand(1.6, 6.6);
+                particles.push({
+                    x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+                    life: 60 + Math.floor(rand(0, 40)), color: baseColor, size: rand(1,3)
                 });
             }
+            if (particles.length > maxParticles) particles.splice(0, particles.length - maxParticles);
+        }
 
-            function explode(x, y, baseColor) {
-                const count = 40 + Math.floor(rand(10, 45));
-                for (let i=0;i<count;i++){
-                    const angle = rand(0, Math.PI*2);
-                    const speed = rand(1.6, 6.6);
-                    particles.push({
-                        x, y, vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
-                        life: 60 + Math.floor(rand(0, 40)), color: baseColor, size: rand(1,3)
-                    });
+        function update() {
+            ctx.fillStyle = 'rgba(6,6,10,0.18)';
+            ctx.fillRect(0,0,W,H);
+
+            for (let i = rockets.length-1; i>=0; i--) {
+                const r = rockets[i];
+                r.x += r.vx; r.y += r.vy; r.vy += 0.18; r.life++;
+                ctx.beginPath();
+                ctx.moveTo(r.x - r.vx*2, r.y - r.vy*2);
+                ctx.lineTo(r.x, r.y);
+                ctx.strokeStyle = r.color; ctx.lineWidth = 2; ctx.stroke();
+                if (r.vy >= -2 || r.life > 70) {
+                    explode(r.x, r.y, r.color);
+                    rockets.splice(i,1);
                 }
-                if (particles.length > maxParticles) particles.splice(0, particles.length - maxParticles);
             }
+            for (let i = particles.length-1; i>=0; i--) {
+                const p = particles[i];
+                p.x += p.vx; p.y += p.vy; p.vy += 0.06; p.vx *= 0.99; p.vy *= 0.99; p.life--;
+                const alpha = Math.max(p.life / 100, 0);
+                ctx.beginPath();
+                ctx.fillStyle = `rgba(${hexToRgb(p.color)}, ${alpha})`;
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
+                ctx.fill();
+                if (p.life <= 0 || p.y > H + 20) particles.splice(i,1);
+            }
+            if (rockets.length < maxRockets && Math.random() < 0.06) launchRocket();
+            requestAnimationFrame(update);
+        }
 
-            function update() {
-                ctx.fillStyle = 'rgba(6,6,10,0.18)';
-                ctx.fillRect(0,0,W,H);
-
-                for (let i = rockets.length-1; i>=0; i--) {
-                    const r = rockets[i];
-                    r.x += r.vx; r.y += r.vy; r.vy += 0.18; r.life++;
-                    ctx.beginPath();
-                    ctx.moveTo(r.x - r.vx*2, r.y - r.vy*2);
-                    ctx.lineTo(r.x, r.y);
-                    ctx.strokeStyle = r.color; ctx.lineWidth = 2; ctx.stroke();
-                    if (r.vy >= -2 || r.life > 70) {
-                        explode(r.x, r.y, r.color);
-                        rockets.splice(i,1);
+        function hexToRgb(colorStr) {
+            try {
+                if (colorStr.startsWith('hsl')) {
+                    const parts = colorStr.match(/hsl\((\d+),\s*([\d.]+)%,\s*([\d.]+)%\)/i);
+                    if (parts) {
+                        const h = +parts[1], s = +parts[2]/100, l = +parts[3]/100;
+                        const a = s * Math.min(l, 1 - l);
+                        const f = (n) => {
+                            const k = (n + h/30) % 12;
+                            const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+                            return Math.round(255 * color);
+                        };
+                        return `${f(0)}, ${f(8)}, ${f(4)}`;
                     }
                 }
-                for (let i = particles.length-1; i>=0; i--) {
-                    const p = particles[i];
-                    p.x += p.vx; p.y += p.vy; p.vy += 0.06; p.vx *= 0.99; p.vy *= 0.99; p.life--;
-                    const alpha = Math.max(p.life / 100, 0);
-                    ctx.beginPath();
-                    ctx.fillStyle = `rgba(${hexToRgb(p.color)}, ${alpha})`;
-                    ctx.arc(p.x, p.y, p.size, 0, Math.PI*2);
-                    ctx.fill();
-                    if (p.life <= 0 || p.y > H + 20) particles.splice(i,1);
-                }
-                if (rockets.length < maxRockets && Math.random() < 0.06) launchRocket();
-                requestAnimationFrame(update);
-            }
+            } catch(e) {}
+            return '255,255,255';
+        }
+        update();
+    })();
 
-            function hexToRgb(colorStr) {
-                try {
-                    if (colorStr.startsWith('hsl')) {
-                        const parts = colorStr.match(/hsl\((\d+),\s*([\d.]+)%,\s*([\d.]+)%\)/i);
-                        if (parts) {
-                            const h = +parts[1], s = +parts[2]/100, l = +parts[3]/100;
-                            const a = s * Math.min(l, 1 - l);
-                            const f = (n) => {
-                                const k = (n + h/30) % 12;
-                                const color = l - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
-                                return Math.round(255 * color);
-                            };
-                            return `${f(0)}, ${f(8)}, ${f(4)}`;
-                        }
-                    }
-                } catch(e) {}
-                return '255,255,255';
-            }
-            update();
-        })();
-
-        // === Accessibility: close drawer on ESC ===
-        document.addEventListener('keyup', (e) => {
-            if (e.key === 'Escape' && drawerNav.classList.contains('active')) {
-                drawerToggle.classList.remove('active');
-                drawerNav.classList.remove('active');
-            }
-        });
-    </script>
+    // === Accessibility: close drawer on ESC ===
+    document.addEventListener('keyup', (e) => {
+        if (e.key === 'Escape' && drawerNav.classList.contains('active')) {
+            drawerToggle.classList.remove('active');
+            drawerNav.classList.remove('active');
+        }
+    });
+</script>
+    
+            
+    
 </body>
 </html>
